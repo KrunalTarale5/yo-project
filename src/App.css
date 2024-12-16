@@ -50,28 +50,32 @@
 
 /* Main layout */
 .booking-container {
-  max-width: 480px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 20px;
+}
+
+.booking-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Creates two equal columns */
+  gap: 30px;
+  align-items: start;
 }
 
 /* Calendar Section (Left side) */
 .calendar-section {
   background: white;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
-  margin-bottom: 1.5rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Slots Section (Left side) */
 .slots-section {
   background: white;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Slots Grid */
@@ -665,5 +669,13 @@
 
   .modal-buttons button {
     width: 100%;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .booking-grid {
+    grid-template-columns: 1fr; /* Stack sections on mobile */
+    gap: 20px;
   }
 }

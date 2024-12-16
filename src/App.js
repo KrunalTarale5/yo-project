@@ -244,109 +244,113 @@ function App() {
       <h1 className="page-title">Schedule Consultation</h1>
       
       <div className="booking-container">
-        {/* Left Section - Calendar */}
-        <div className="calendar-section">
-          <div className="calendar-header">
-            <h2 className="calendar-title">Select a Date</h2>
-            <div className="timezone-selector">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <line x1="12" y1="6" x2="12" y2="12"/>
-                <line x1="12" y1="12" x2="16" y2="14"/>
-              </svg>
-              <span>{Intl.DateTimeFormat().resolvedOptions().timeZone}</span>
+        <div className="booking-grid">
+          {/* Left Section - Calendar */}
+          <div className="calendar-section">
+            <div className="calendar-header">
+              <h2 className="calendar-title">Select a Date</h2>
+              <div className="timezone-selector">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="6" x2="12" y2="12"/>
+                  <line x1="12" y1="12" x2="16" y2="14"/>
+                </svg>
+                <span>{Intl.DateTimeFormat().resolvedOptions().timeZone}</span>
+              </div>
             </div>
+
+            <DatePicker
+              selected={selectedDate}
+              onChange={async (date) => {
+                setSelectedDate(date);
+                setLoading(true);
+                try {
+                  await fetchAvailableSlots();
+                } catch (error) {
+                  setError('Failed to fetch slots');
+                }
+              }}
+              inline
+              calendarClassName="calendar-custom"
+              minDate={new Date()}
+              showPopperArrow={false}
+              monthsShown={1}
+              fixedHeight
+            />
+
+            <button 
+              className={`check-slots-button ${loading ? 'loading' : ''}`}
+              onClick={fetchAvailableSlots}
+              disabled={loading}
+            >
+              {loading ? <span className="loading-spinner"></span> : 'Check Available Slots'}
+            </button>
           </div>
 
-          <DatePicker
-            selected={selectedDate}
-            onChange={async (date) => {
-              setSelectedDate(date);
-              setLoading(true);
-              try {
-                await fetchAvailableSlots();
-              } catch (error) {
-                setError('Failed to fetch slots');
-              }
-            }}
-            inline
-            calendarClassName="calendar-custom"
-            minDate={new Date()}
-            showPopperArrow={false}
-            monthsShown={1}
-            fixedHeight
-          />
-
-          <button 
-            className={`check-slots-button ${loading ? 'loading' : ''}`}
-            onClick={fetchAvailableSlots}
-            disabled={loading}
-          >
-            {loading ? <span className="loading-spinner"></span> : 'Check Available Slots'}
-          </button>
-        </div>
-
-        {/* Right Section - Available Times */}
-        {displayDate && (
+          {/* Right Section - Available Times */}
           <div className="slots-section">
-            <div className="slots-header">
-              <h2 className="slots-title">Available Times</h2>
-              <p className="selected-date">
-                {selectedDate.toLocaleDateString('en-US', { 
-                  weekday: 'long',
-                  month: 'long',
-                  day: 'numeric'
-                })}
-              </p>
-            </div>
-
-            <div className="practitioners-tabs">
-              {Object.entries(practitioners).map(([id, practitioner], index) => (
-                <button
-                  key={id}
-                  className={`tab-button ${(!selectedPractitioner && index === 0) || selectedPractitioner?.eventId === practitioner.eventId ? 'active' : ''}`}
-                  onClick={() => setSelectedPractitioner(practitioner)}
-                >
-                  {practitioner.name}
-                </button>
-              ))}
-            </div>
-
-            <div className="time-slots-container">
-              {loading ? (
-                <div className="loading-container">
-                  <div className="loading-spinner"></div>
-                  <p>Loading available slots...</p>
+            {displayDate && (
+              <>
+                <div className="slots-header">
+                  <h2 className="slots-title">Available Times</h2>
+                  <p className="selected-date">
+                    {selectedDate.toLocaleDateString('en-US', { 
+                      weekday: 'long',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
+                  </p>
                 </div>
-              ) : (
-                <div className="slots-grid">
-                  {Object.entries(practitioners).map(([id, practitioner]) => {
-                    if ((!selectedPractitioner && id === 'ashish') || 
-                        (selectedPractitioner?.eventId === practitioner.eventId)) {
-                      const availableSlotsList = getAvailableSlotsForDate(availableSlots[id], displayDate);
-                      return availableSlotsList.length > 0 ? (
-                        availableSlotsList.map((slot, idx) => (
-                          <button
-                            key={idx}
-                            className="time-slot"
-                            onClick={() => handleBookSlot(slot, id)}
-                          >
-                            {formatTimeToIST(slot.startTime)}
-                          </button>
-                        ))
-                      ) : (
-                        <div key={id} className="no-slots-message">
-                          No available slots for this date.
-                        </div>
-                      );
-                    }
-                    return null;
-                  })}
+
+                <div className="practitioners-tabs">
+                  {Object.entries(practitioners).map(([id, practitioner], index) => (
+                    <button
+                      key={id}
+                      className={`tab-button ${(!selectedPractitioner && index === 0) || selectedPractitioner?.eventId === practitioner.eventId ? 'active' : ''}`}
+                      onClick={() => setSelectedPractitioner(practitioner)}
+                    >
+                      {practitioner.name}
+                    </button>
+                  ))}
                 </div>
-              )}
-            </div>
+
+                <div className="time-slots-container">
+                  {loading ? (
+                    <div className="loading-container">
+                      <div className="loading-spinner"></div>
+                      <p>Loading available slots...</p>
+                    </div>
+                  ) : (
+                    <div className="slots-grid">
+                      {Object.entries(practitioners).map(([id, practitioner]) => {
+                        if ((!selectedPractitioner && id === 'ashish') || 
+                            (selectedPractitioner?.eventId === practitioner.eventId)) {
+                          const availableSlotsList = getAvailableSlotsForDate(availableSlots[id], displayDate);
+                          return availableSlotsList.length > 0 ? (
+                            availableSlotsList.map((slot, idx) => (
+                              <button
+                                key={idx}
+                                className="time-slot"
+                                onClick={() => handleBookSlot(slot, id)}
+                              >
+                                {formatTimeToIST(slot.startTime)}
+                              </button>
+                            ))
+                          ) : (
+                            <div key={id} className="no-slots-message">
+                              No available slots for this date.
+                            </div>
+                          );
+                        }
+                        return null;
+                      })}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
           </div>
-        )}
+        </div>
       </div>
 
       {error && <p className="error-message">{error}</p>}
